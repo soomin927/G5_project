@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Habit Quest - Grade 8 English</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #06b6d4;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .progress-indicator {
+            font-size: 0.875rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .content-area {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        p.instruction {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* Common UI Elements */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #eef2ff;
+        }
+
+        /* Screen 1: Story Intro & Target Expressions */
+        .story-box {
+            background: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .expressions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .expression-chip {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .expression-chip span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        /* Screen 2: Flashcards / Matching */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 220px;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .card-front {
+            background: white;
+            color: var(--text-main);
+        }
+
+        .card-front .term {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-front .hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .card-back {
+            background: var(--primary);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .card-back .definition {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-back .example {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Screen 3: Fill in the Blanks */
+        .quiz-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-sentence {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 1.25rem;
+        }
+
+        .blank-target {
+            display: inline-block;
+            min-width: 120px;
+            border-bottom: 2px dashed var(--primary);
+            color: var(--primary);
+            font-weight: 700;
+            text-align: center;
+            padding: 0 0.5rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            color: var(--text-main);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .option-btn.correct {
+            background: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        .option-btn.incorrect {
+            background: #fee2e2;
+            border-color: var(--error);
+            color: #991b1b;
+        }
+
+        /* Screen 4: Sentence Scramble / Usage */
+        .scramble-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone {
+            min-height: 50px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .word-chip {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .word-chip:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .feedback-msg {
+            margin-top: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-height: 1.5rem;
+        }
+
+        .feedback-msg.success { color: var(--success); }
+        .feedback-msg.error { color: var(--error); }
+
+        /* Screen 5: Summary / Completion */
+        .completion-screen {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .trophy-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .score-display {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .summary-list {
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .summary-list li {
+            margin-left: 1.25rem;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Footer navigation */
+        .screen-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Study Habit Quest</h1>
+            <div class="progress-indicator" id="progressIndicator">Step 1 of 4</div>
+        </header>
+
+        <div class="content-area">
+
+            <!-- SCREEN 1: INTRO & STORY -->
+            <div id="screen1" class="screen active">
+                <div>
+                    <h2>Jisoo's Exam Preparation</h2>
+                    <p class="instruction">Read Jisoo's story about building better study habits. Pay attention to the 6 target expressions highlighted below!</p>
+                    
+                    <div class="story-box">
+                        Jisoo wanted to improve her study habits before the exam period. She began to <strong>keep track of</strong> how long she studied each day. She also learned when to <strong>take a break</strong> instead of studying for too long. While studying, she tried to <strong>stay away from</strong> her phone and made sure to <strong>get enough sleep</strong>. When she felt stressed, she learned how to <strong>deal with</strong> it by taking a short walk. After several weeks, she found it easier to <strong>stick to</strong> her new routine.
+                    </div>
+
+                    <p style="font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Target Expressions to Master:</p>
+                    <div class="expressions-grid">
+                        <div class="expression-chip">keep track of <span>공부 시간을 기록하다</span></div>
+                        <div class="expression-chip">take a break <span>휴식을 취하다</span></div>
+                        <div class="expression-chip">stay away from <span>~을 멀리하다</span></div>
+                        <div class="expression-chip">get enough sleep <span>충분한 수면을 취하다</span></div>
+                        <div class="expression-chip">deal with <span>~을 대처하다/다루다</span></div>
+                        <div class="expression-chip">stick to <span>(~을) 꾸준히 지키다</span></div>
+                    </div>
+                </div>
+
+                <div class="screen-footer">
+                    <button class="btn" onclick="nextScreen()">Start Practice &rarr;</button>
+                </div>
+            </div>
+
+            <!-- SCREEN 2: FLASHCARDS -->
+            <div id="screen2" class="screen">
+                <div>
+                    <h2>Expression Flashcards</h2>
+                    <p class="instruction">Click the card to flip and check the meaning. Review all 6 expressions before the mini-quiz!</p>
+                    
+                    <div class="flashcard-container" onclick="flipCard()">
+                        <div class="flashcard" id="flashcardElement">
+                            <div class="card-face card-front">
+                                <div class="term" id="cardTerm">keep track of</div>
+                                <div class="hint">(Click to flip for meaning)</div>
+                            </div>
+                            <div class="card-face card-back">
+                                <div class="definition" id="cardDef">공부 시간을 기록하다</div>
+                                <div class="example" id="cardEx">"She began to keep track of how long she studied."</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flashcard-controls">
+                        <button class="btn btn-secondary" onclick="prevCard()">&larr; Prev</button>
+                        <span id="cardCounter" style="font-weight: 600; color: var(--text-muted);">1 / 6</span>
+                        <button class="btn" onclick="nextCard()">Next &rarr;</button>
+                    </div>
+                </div>
+
+                <div class="screen-footer">
+                    <button class="btn" onclick="nextScreen()">Go to Quiz &rarr;</button>
+                </div>
+            </div>
+
+            <!-- SCREEN 3: FILL IN THE BLANKS -->
+            <div id="screen3" class="screen">
+                <div>
+                    <h2>Check Your Understanding</h2>
+                    <p class="instruction">Choose the correct expression to complete each sentence based on Jisoo's story.</p>
+                    
+                    <div class="quiz-card">
+                        <div class="quiz-sentence" id="quizSentence">
+                            1. Before the exams, Jisoo started to <span class="blank-target" id="blankTarget">________</span> how many hours she spent studying each day.
+                        </div>
+                        <div class="options-grid" id="optionsGrid">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div class="feedback-msg" id="quizFeedback"></div>
+                    </div>
+                </div>
+
+                <div class="screen-footer">
+                    <button class="btn" id="quizNextBtn" onclick="nextQuizQuestion()" disabled>Next Question &rarr;</button>
+                </div>
+            </div>
+
+            <!-- SCREEN 4: SENTENCE BUILDING / SCRAMBLE -->
+            <div id="screen4" class="screen">
+                <div>
+                    <h2>Sentence Builder</h2>
+                    <p class="instruction">Tap the words in the correct order to form a natural sentence using the target expression!</p>
+                    
+                    <div class="scramble-box">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;" id="scrambleHint">Target: stay away from</p>
+                        <div class="drop-zone" id="dropZone">
+                            <!-- Selected words go here -->
+                        </div>
+                        <div class="word-pool" id="wordPool">
+                            <!-- Available words go here -->
+                        </div>
+                        <div class="feedback-msg" id="scrambleFeedback"></div>
+                    </div>
+                </div>
+
+                <div class="screen-footer">
+                    <button class="btn" id="scrambleNextBtn" onclick="nextScrambleQuestion()" disabled>Next Sentence &rarr;</button>
+                </div>
+            </div>
+
+            <!-- SCREEN 5: COMPLETION & SUMMARY -->
+            <div id="screen5" class="screen">
+                <div class="completion-screen">
+                    <div class="trophy-icon">🏆</div>
+                    <h2>Great Job, Student!</h2>
+                    <p class="instruction">You successfully completed the Study Habit Quest and practiced all 6 key expressions.</p>
+                    
+                    <div class="score-display" id="finalScoreDisplay">Score: 5 / 5</div>
+                    
+                    <ul class="summary-list">
+                        <li><strong>keep track of</strong> (기록하다)</li>
+                        <li><strong>take a break</strong> (휴식하다)</li>
+                        <li><strong>stay away from</strong> (멀리하다)</li>
+                        <li><strong>get enough sleep</strong> (충분히 자다)</li>
+                        <li><strong>deal with</strong> (대처하다)</li>
+                        <li><strong>stick to</strong> (고수하다/지키다)</li>
+                    </ul>
+
+                    <button class="btn" onclick="restartApp()">Practice Again</button>
+                </div>
+                <div class="screen-footer" style="display:none;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- App State ---
+        let currentScreen = 1;
+        let score = 0;
+
+        // Flashcards Data
+        const flashcards = [
+            { term: "keep track of", def: "공부 시간을 기록하다", ex: "\"She began to keep track of how long she studied.\"" },
+            { term: "take a break", def: "휴식을 취하다", ex: "\"She learned when to take a break instead of studying too long.\"" },
+            { term: "stay away from", def: "~을 멀리하다", ex: "\"She tried to stay away from her phone while studying.\"" },
+            { term: "get enough sleep", def: "충분한 수면을 취하다", ex: "\"She made sure to get enough sleep before the exam.\"" },
+            { term: "deal with", def: "~을 대처하다 / 다루다", ex: "\"She learned how to deal with stress by taking a short walk.\"" },
+            { term: "stick to", def: "(~을) 꾸준히 지키다", ex: "\"She found it easier to stick to her new routine.\"" }
+        ];
+        let currentCardIndex = 0;
+        let isCardFlipped = false;
+
+        // Quiz Questions Data (Fill in the blanks)
+        const quizQuestions = [
+            {
+                sentence: "Before the exams, Jisoo started to <span class='blank-target'>[ _____ ]</span> how many hours she spent studying each day.",
+                answer: "keep track of",
+                options: ["keep track of", "take a break", "deal with", "stick to"]
+            },
+            {
+                sentence: "When she studied for too long, she knew it was time to <span class='blank-target'>[ _____ ]</span> and rest her mind.",
+                answer: "take a break",
+                options: ["stay away from", "take a break", "get enough sleep", "keep track of"]
+            },
+            {
+                sentence: "To focus better on her homework, she decided to <span class='blank-target'>[ _____ ]</span> social media and her phone.",
+                answer: "stay away from",
+                options: ["deal with", "stick to", "stay away from", "take a break"]
+            },
+            {
+                sentence: "Staying up late is bad for exams, so she always made sure to <span class='blank-target'>[ _____ ]</span>.",
+                answer: "get enough sleep",
+                options: ["get enough sleep", "keep track of", "deal with", "stay away from"]
+            },
+            {
+                sentence: "When exam stress made her anxious, she figured out how to <span class='blank-target'>[ _____ ]</span> it peacefully.",
+                answer: "deal with",
+                options: ["stick to", "deal with", "take a break", "stay away from"]
+            },
+            {
+                sentence: "After a few weeks of practice, Jisoo found it easy to <span class='blank-target'>[ _____ ]</span> her daily study schedule.",
+                answer: "stick to",
+                options: ["stay away from", "keep track of", "stick to", "get enough sleep"]
+            }
+        ];
+        let currentQuizIndex = 0;
+        let quizAnswered = false;
+
+        // Sentence Scramble Data
+        const scrambleQuestions = [
+            {
+                targetExpression: "stay away from",
+                words: ["try", "to", "stay", "away", "from", "your", "phone"],
+                correct: ["try", "to", "stay", "away", "from", "your", "phone"]
+            },
+            {
+                targetExpression: "take a break",
+                words: ["you", "should", "take", "a", "break", "now"],
+                correct: ["you", "should", "take", "a", "break", "now"]
+            },
+            {
+                targetExpression: "stick to",
+                words: ["it", "is", "hard", "to", "stick", "to", "a", "routine"],
+                correct: ["it", "is", "hard", "to", "stick", "to", "a", "routine"]
+            }
+        ];
+        let currentScrambleIndex = 0;
+        let userSelectedWords = [];
+        let availableWords = [];
+
+        // --- Navigation Controller ---
+        function updateProgress() {
+            const indicator = document.getElementById('progressIndicator');
+            if (currentScreen === 5) {
+                indicator.style.display = 'none';
+            } else {
+                indicator.style.display = 'block';
+                indicator.innerText = `Step ${currentScreen} of 4`;
+            }
+        }
+
+        function showScreen(screenNum) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen${screenNum}`).classList.add('active');
+            currentScreen = screenNum;
+            updateProgress();
+
+            if (currentScreen === 2) {
+                renderFlashcard();
+            } else if (currentScreen === 3) {
+                renderQuizQuestion();
+            } else if (currentScreen === 4) {
+                renderScrambleQuestion();
+            } else if (currentScreen === 5) {
+                document.getElementById('finalScoreDisplay').innerText = `Total Score: ${score} / 9`;
+            }
+        }
+
+        function nextScreen() {
+            if (currentScreen < 5) {
+                showScreen(currentScreen + 1);
+            }
+        }
+
+        // --- Flashcard Logic ---
+        function renderFlashcard() {
+            const card = flashcards[currentCardIndex];
+            document.getElementById('cardTerm').innerText = card.term;
+            document.getElementById('cardDef').innerText = card.def;
+            document.getElementById('cardEx').innerText = card.ex;
+            document.getElementById('cardCounter').innerText = `${currentCardIndex + 1} / ${flashcards.length}`;
+            
+            // Reset flip state
+            isCardFlipped = false;
+            document.getElementById('flashcardElement').classList.remove('flipped');
+        }
+
+        function flipCard() {
+            isCardFlipped = !isCardFlipped;
+            document.getElementById('flashcardElement').classList.toggle('flipped', isCardFlipped);
+        }
+
+        function nextCard() {
+            if (currentCardIndex < flashcards.length - 1) {
+                currentCardIndex++;
+                renderFlashcard();
+            } else {
+                currentCardIndex = 0;
+                renderFlashcard();
+            }
+        }
+
+        function prevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                renderFlashcard();
+            } else {
+                currentCardIndex = flashcards.length - 1;
+                renderFlashcard();
+            }
+        }
+
+        // --- Quiz Logic (Screen 3) ---
+        function renderQuizQuestion() {
+            quizAnswered = false;
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('quizSentence').innerHTML = `${currentQuizIndex + 1}. ${q.sentence}`;
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            // Shuffle options for interactivity
+            let shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectQuizOption(opt, btn, q.answer);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('quizFeedback').innerText = '';
+            document.getElementById('quizNextBtn').disabled = true;
+        }
+
+        function selectQuizOption(selectedOption, buttonElement, correctAnswer) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            const feedback = document.getElementById('quizFeedback');
+            if (selectedOption === correctAnswer) {
+                buttonElement.classList.add('correct');
+                feedback.innerText = "Correct! Great job.";
+                feedback.className = "feedback-msg success";
+                score++;
+            } else {
+                buttonElement.classList.add('incorrect');
+                feedback.innerText = `Incorrect. The correct answer is "${correctAnswer}".`;
+                feedback.className = "feedback-msg error";
+                // Highlight correct one
+                allButtons.forEach(btn => {
+                    if (btn.innerText === correctAnswer) btn.classList.add('correct');
+                });
+            }
+
+            document.getElementById('quizNextBtn').disabled = false;
+        }
+
+        function nextQuizQuestion() {
+            if (currentQuizIndex < quizQuestions.length - 1) {
+                currentQuizIndex++;
+                renderQuizQuestion();
+            } else {
+                nextScreen();
+            }
+        }
+
+        // --- Sentence Scramble Logic (Screen 4) ---
+        function renderScrambleQuestion() {
+            const sq = scrambleQuestions[currentScrambleIndex];
+            document.getElementById('scrambleHint').innerText = `Target Expression: ${sq.targetExpression}`;
+            
+            userSelectedWords = [];
+            availableWords = [...sq.words].sort(() => Math.random() - 0.5);
+            
+            updateScrambleUI();
+            document.getElementById('scrambleFeedback').innerText = '';
+            document.getElementById('scrambleNextBtn').disabled = true;
+        }
+
+        function updateScrambleUI() {
+            const dropZone = document.getElementById('dropZone');
+            const wordPool = document.getElementById('wordPool');
+            
+            dropZone.innerHTML = '';
+            wordPool.innerHTML = '';
+
+            if (userSelectedWords.length === 0) {
+                dropZone.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem; padding: 0.25rem;">Tap words below to build sentence...</span>';
+            } else {
+                userSelectedWords.forEach((word, index) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'word-chip';
+                    chip.style.background = '#eef2ff';
+                    chip.style.color = 'var(--primary)';
+                    chip.style.borderColor = '#c7d2fe';
+                    chip.innerText = word;
+                    chip.onclick = () => removeWordFromSentence(index);
+                    dropZone.appendChild(chip);
+                });
+            }
+
+            availableWords.forEach((word, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'word-chip';
+                chip.innerText = word;
+                chip.onclick = () => addWordToSentence(index);
+                wordPool.appendChild(chip);
+            });
+        }
+
+        function addWordToSentence(poolIndex) {
+            const word = availableWords.splice(poolIndex, 1)[0];
+            userSelectedWords.push(word);
+            updateScrambleUI();
+            checkScrambleCompletion();
+        }
+
+        function removeWordFromSentence(sentenceIndex) {
+            const word = userSelectedWords.splice(sentenceIndex, 1)[0];
+            availableWords.push(word);
+            updateScrambleUI();
+            document.getElementById('scrambleFeedback').innerText = '';
+            document.getElementById('scrambleNextBtn').disabled = true;
+        }
+
+        function checkScrambleCompletion() {
+            const sq = scrambleQuestions[currentScrambleIndex];
+            if (availableWords.length === 0) {
+                // All words placed, verify order
+                const isCorrect = userSelectedWords.every((w, i) => w === sq.correct[i]);
+                const feedback = document.getElementById('scrambleFeedback');
+                
+                if (isCorrect) {
+                    feedback.innerText = "Fantastic! Perfect sentence structure.";
+                    feedback.className = "feedback-msg success";
+                    document.getElementById('scrambleNextBtn').disabled = false;
+                    score++;
+                } else {
+                    feedback.innerText = "Not quite right order. Tap your words to rearrange.";
+                    feedback.className = "feedback-msg error";
+                }
+            }
+        }
+
+        function nextScrambleQuestion() {
+            if (currentScrambleIndex < scrambleQuestions.length - 1) {
+                currentScrambleIndex++;
+                renderScrambleQuestion();
+            } else {
+                nextScreen();
+            }
+        }
+
+        function restartApp() {
+            currentScreen = 1;
+            score = 0;
+            currentCardIndex = 0;
+            currentQuizIndex = 0;
+            currentScrambleIndex = 0;
+            showScreen(1);
+        }
+    </script>
+</body>
+</html>
