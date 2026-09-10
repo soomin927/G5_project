@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mystery of the Missing Trophy</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#101010,#232323);
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.game{
+    width:100%;
+    max-width:900px;
+    background:#262626;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 0 25px rgba(0,0,0,.5);
+}
+
+h1{
+    text-align:center;
+    color:#ffd54f;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#ccc;
+    margin-bottom:20px;
+}
+
+.progress{
+    text-align:right;
+    color:#aaa;
+    margin-bottom:15px;
+}
+
+.story{
+    background:#333;
+    padding:15px;
+    border-radius:12px;
+    line-height:1.8;
+    margin-bottom:20px;
+}
+
+.question{
+    font-size:1.15rem;
+    line-height:1.8;
+    margin-bottom:10px;
+}
+
+.translation{
+    color:#ffd54f;
+    margin-bottom:20px;
+    line-height:1.7;
+}
+
+.options{
+    display:grid;
+    gap:10px;
+}
+
+.option{
+    border:none;
+    padding:15px;
+    border-radius:10px;
+    background:#444;
+    color:white;
+    cursor:pointer;
+    font-size:1rem;
+    transition:.2s;
+}
+
+.option:hover{
+    background:#5d5d5d;
+}
+
+.result{
+    margin-top:20px;
+    padding:18px;
+    border-radius:12px;
+    display:none;
+    line-height:1.8;
+}
+
+.correct{
+    background:#1d5d32;
+}
+
+.wrong{
+    background:#7a2727;
+}
+
+.nextBtn{
+    margin-top:15px;
+    border:none;
+    padding:12px 22px;
+    border-radius:10px;
+    background:#ffd54f;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.badge{
+    font-size:4rem;
+    margin-bottom:15px;
+}
+
+.ending{
+    text-align:center;
+    line-height:1.9;
+}
+
+.reason{
+    margin-top:8px;
+    color:#fff8c4;
+}
+
+.hint{
+    margin-top:8px;
+    color:#ffe082;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+    <h1>🕵️ The Mystery of the Missing Trophy</h1>
+    <div class="subtitle">영어 표현으로 단서를 모아 사건을 해결하라!</div>
+
+    <div id="progress" class="progress"></div>
+    <div id="content"></div>
+</div>
+
+<script>
+
+const questions = [
+
+{
+english:"Someone is ______ the school festival. She organizes everything and gives instructions.",
+korean:"누군가가 학교 축제를 총괄하고 있다. 그녀는 모든 것을 조직하고 지시한다.",
+options:["take part in","figure out","in charge of","work on"],
+answer:"in charge of",
+reason:"'in charge of'는 '~을 책임지고 있는, 총괄하는'이라는 뜻이다. 축제를 조직하고 지시하는 사람에게 가장 알맞다.",
+hint:"축제를 '관리하고 책임지는 사람'을 나타내는 표현을 생각해 보자.",
+clue:"🔍 단서: 학생회장이 트로피 보관실에 들어갈 수 있었다."
+},
+
+{
+english:"Many students want to ______ the festival games.",
+korean:"많은 학생들이 축제 게임에 참여하고 싶어 한다.",
+options:["take part in","make a difference","cut down on","work on"],
+answer:"take part in",
+reason:"'take part in'은 '~에 참여하다'라는 뜻이다.",
+hint:"축제 게임에 '참여'하는 상황을 떠올려 보자.",
+clue:"🔍 단서: 어제 여러 학생이 보관실 근처에 있었다."
+},
+
+{
+english:"Detective Mia must ______ who took the trophy.",
+korean:"탐정 미아는 누가 트로피를 가져갔는지 알아내야 한다.",
+options:["work on","figure out","take part in","cut down on"],
+answer:"figure out",
+reason:"'figure out'은 '알아내다, 해결하다'라는 뜻으로 사건의 범인을 찾는 상황에 어울린다.",
+hint:"탐정은 사건의 진실을 '알아내야' 한다.",
+clue:"🔍 단서: 현장에서 수상한 메모가 발견되었다."
+},
+
+{
+english:"The suspect stayed late to ______ a secret project.",
+korean:"용의자는 비밀 프로젝트를 진행하기 위해 늦게까지 남아 있었다.",
+options:["make a difference","in charge of","work on","take part in"],
+answer:"work on",
+reason:"'work on'은 '~을 작업하다, 진행하다'라는 뜻이다.",
+hint:"프로젝트를 '진행하거나 작업하다'라는 의미의 표현을 찾아보자.",
+clue:"🔍 단서: 메모에는 'festival project'라는 문구가 적혀 있었다."
+},
+
+{
+english:"The school wants to ______ unnecessary spending this year.",
+korean:"학교는 올해 불필요한 지출을 줄이고 싶어 한다.",
+options:["work on","figure out","make a difference","cut down on"],
+answer:"cut down on",
+reason:"'cut down on'은 '~을 줄이다'라는 뜻이다.",
+hint:"불필요한 지출은 보통 '줄인다'.",
+clue:"🔍 단서: 누군가 프로젝트에 재활용 재료를 사용하고 있었다."
+},
+
+{
+english:"She wanted to ______ by creating something special for the festival.",
+korean:"그녀는 축제를 위해 특별한 것을 만들어 변화를 만들고 싶어 했다.",
+options:["make a difference","take part in","in charge of","cut down on"],
+answer:"make a difference",
+reason:"'make a difference'는 '변화를 만들다, 긍정적인 영향을 주다'라는 뜻이다.",
+hint:"단순히 참여하는 것이 아니라 좋은 영향을 주고 싶어 했다.",
+clue:"🔍 마지막 단서: 트로피는 도난당한 것이 아니라 잠시 빌려간 것이었다."
+}
+
+];
+
+let current = 0;
+
+function loadQuestion(){
+
+    const q = questions[current];
+
+    document.getElementById("progress").textContent =
+        `단서 ${current+1} / ${questions.length}`;
+
+    document.getElementById("content").innerHTML = `
+
+    <div class="story">
+        🏆 학교 축제를 앞두고 우승 트로피가 사라졌다!<br>
+        당신은 탐정이 되어 단서를 모으고 범인을 찾아야 한다.
+    </div>
+
+    <div class="question">
+        ${q.english}
+    </div>
+
+    <div class="translation">
+        🇰🇷 ${q.korean}
+    </div>
+
+    <div class="options">
+        ${q.options.map(option =>
+            `<button class="option" onclick="checkAnswer('${option}')">${option}</button>`
+        ).join("")}
+    </div>
+
+    <div id="result" class="result"></div>
+    `;
+}
+
+function checkAnswer(choice){
+
+    const q = questions[current];
+    const result = document.getElementById("result");
+
+    if(choice === q.answer){
+
+        result.className = "result correct";
+        result.style.display = "block";
+
+        if(current < questions.length - 1){
+
+            result.innerHTML = `
+            <strong>✅ Correct!</strong>
+
+            <div class="reason">
+            💡 정답 이유<br>
+            ${q.reason}
+            </div>
+
+            <br>
+            ${q.clue}
+
+            <button class="nextBtn" onclick="nextQuestion()">
+            다음 단서 ▶
+            </button>
+            `;
+        }
+        else{
+            showFinalQuestion();
+        }
+
+    }else{
+
+        result.className = "result wrong";
+        result.style.display = "block";
+
+        result.innerHTML = `
+        <strong>❌ Wrong!</strong>
+
+        <div class="hint">
+        🔎 힌트<br>
+        ${q.hint}
+        </div>
+        `;
+    }
+}
+
+function nextQuestion(){
+    current++;
+    loadQuestion();
+}
+
+function showFinalQuestion(){
+
+    document.getElementById("progress").textContent =
+        "최종 추리";
+
+    document.getElementById("content").innerHTML = `
+
+    <div class="question">
+    🕵️ All clues have been collected!<br><br>
+    Why did the student take the trophy?
+    </div>
+
+    <div class="translation">
+    🇰🇷 모든 단서를 모았다!<br>
+    학생은 왜 트로피를 가져갔을까?
+    </div>
+
+    <div class="options">
+
+        <button class="option" onclick="finalAnswer('A')">
+        To sell it<br><small>(팔기 위해)</small>
+        </button>
+
+        <button class="option" onclick="finalAnswer('B')">
+        To hide it as a prank<br><small>(장난으로 숨기기 위해)</small>
+        </button>
+
+        <button class="option" onclick="finalAnswer('C')">
+        To use it as a model for a festival project<br><small>(축제 프로젝트의 모델로 사용하기 위해)</small>
+        </button>
+
+        <button class="option" onclick="finalAnswer('D')">
+        To take it home<br><small>(집으로 가져가기 위해)</small>
+        </button>
+
+    </div>
+
+    <div id="result" class="result"></div>
+    `;
+}
+
+function finalAnswer(choice){
+
+    const result = document.getElementById("result");
+
+    if(choice === "C"){
+
+        result.className = "result correct";
+        result.style.display = "block";
+
+        result.innerHTML = `
+        <div class="ending">
+
+        <div class="badge">🏆</div>
+
+        <h2>Case Solved!</h2>
+
+        <br>
+
+        💡 정답 이유<br>
+        지금까지의 단서를 종합하면 학생은
+        축제 프로젝트를 진행(work on)하고 있었고,
+        학교에 긍정적인 변화를 만들고(make a difference) 싶어 했다.
+        따라서 트로피를 프로젝트 모델로 잠시 사용한 것이다.
+
+        <br><br>
+
+        🎉 축하합니다!<br>
+        당신은 <b>Junior Detective</b>입니다.
+
+        </div>
+        `;
+    }
+    else{
+
+        result.className = "result wrong";
+        result.style.display = "block";
+
+        result.innerHTML = `
+        <strong>❌ Wrong!</strong>
+
+        <div class="hint">
+        🔎 힌트<br>
+        지금까지 얻은 단서들을 다시 살펴보자.
+        범인은 돈을 벌거나 장난을 치려는 목적이 아니었다.
+        'festival project'와 관련된 이유를 생각해 보자.
+        </div>
+        `;
+    }
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
