@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The School Festival Mystery</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #101827;
+      color: #f5f1df;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(760px, 100%);
+      text-align: center;
+    }
+
+    /* Header */
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border: 1px solid #b89b5e;
+      border-radius: 999px;
+      color: #d8bc7a;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(30px, 6vw, 46px);
+      color: #f7e8b1;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      margin: 8px 0 20px;
+      color: #aeb7c8;
+      font-size: 14px;
+    }
+
+    /* Progress */
+
+    .progress-area {
+      max-width: 620px;
+      margin: 0 auto 18px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      color: #9da8ba;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 7px;
+      background: #263246;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #d8bc7a;
+      border-radius: 10px;
+      transition: width 0.35s ease;
+    }
+
+    /* Keys */
+
+    .keys {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      margin: 0 auto 18px;
+    }
+
+    .key {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #202c40;
+      border: 1px solid #3a475c;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      filter: grayscale(1);
+      opacity: 0.35;
+      transition: all 0.3s ease;
+    }
+
+    .key.found {
+      filter: grayscale(0);
+      opacity: 1;
+      border-color: #d8bc7a;
+      box-shadow: 0 0 14px rgba(216, 188, 122, 0.35);
+      transform: scale(1.08);
+    }
+
+    /* Question Card */
+
+    .question-card {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+      background: #182235;
+      border: 1px solid #665a40;
+      border-radius: 20px;
+      padding: 34px 34px 30px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .case-label {
+      color: #b89b5e;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+    }
+
+    .clue-title {
+      font-family: Georgia, "Times New Roman", serif;
+      color: #f7e8b1;
+      font-size: 25px;
+      margin: 0 0 22px;
+    }
+
+    .sentence {
+      font-size: 19px;
+      line-height: 1.65;
+      color: #f0f2f5;
+      margin: 0 auto 25px;
+      max-width: 540px;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 145px;
+      border-bottom: 2px solid #d8bc7a;
+      color: #d8bc7a;
+      font-weight: bold;
+      padding: 0 5px;
+    }
+
+    /* Options */
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .option {
+      background: #263246;
+      color: #f0f2f5;
+      border: 1px solid #3b485c;
+      border-radius: 11px;
+      padding: 15px 12px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option:hover:not(:disabled) {
+      background: #334159;
+      border-color: #718096;
+      transform: translateY(-2px);
+    }
+
+    .option.correct {
+      background: #234331;
+      border-color: #68a77d;
+      color: #d9f0df;
+    }
+
+    .option.wrong {
+      background: #482d32;
+      border-color: #a8666f;
+      color: #f3d9dc;
+    }
+
+    .option:disabled {
+      cursor: default;
+    }
+
+    /* Feedback */
+
+    .feedback {
+      min-height: 105px;
+      margin-top: 20px;
+      padding: 15px 17px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.correct-feedback {
+      background: rgba(58, 105, 75, 0.22);
+      border: 1px solid #4f8061;
+    }
+
+    .feedback.wrong-feedback {
+      background: rgba(122, 57, 65, 0.20);
+      border: 1px solid #89515a;
+    }
+
+    .feedback-title {
+      font-weight: bold;
+      font-size: 17px;
+      margin-bottom: 7px;
+    }
+
+    .feedback-text {
+      color: #d0d6df;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .korean-hint {
+      display: block;
+      margin-top: 5px;
+      color: #d8bc7a;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    /* Buttons */
+
+    .next-btn,
+    .retry-btn {
+      display: none;
+      margin: 16px auto 0;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      background: #d8bc7a;
+      color: #171b24;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .next-btn.show,
+    .retry-btn.show {
+      display: block;
+    }
+
+    .next-btn:hover,
+    .retry-btn:hover {
+      background: #ead092;
+      transform: translateY(-1px);
+    }
+
+    /* Final Screen */
+
+    .final-screen {
+      display: none;
+      max-width: 620px;
+      margin: 0 auto;
+      background: #182235;
+      border: 1px solid #665a40;
+      border-radius: 20px;
+      padding: 50px 30px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .final-screen.show {
+      display: block;
+    }
+
+    .final-icon {
+      font-size: 64px;
+      margin-bottom: 15px;
+    }
+
+    .final-screen h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 36px;
+      color: #f7e8b1;
+      margin: 0 0 12px;
+    }
+
+    .final-screen p {
+      color: #c5ccd7;
+      line-height: 1.6;
+      margin: 7px 0;
+    }
+
+    .score {
+      margin: 22px 0;
+      font-size: 21px;
+      color: #d8bc7a;
+      font-weight: bold;
+    }
+
+    .result-message {
+      margin: 15px auto 25px;
+      padding: 14px;
+      border-radius: 10px;
+      background: rgba(216, 188, 122, 0.08);
+      border: 1px solid #665a40;
+      color: #d8dce4;
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    .restart-btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      background: #d8bc7a;
+      color: #171b24;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .restart-btn:hover {
+      background: #ead092;
+    }
+
+    /* Mobile */
+
+    @media (max-width: 600px) {
+
+      body {
+        padding: 15px;
+      }
+
+      .question-card {
+        padding: 28px 18px 24px;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+      }
+
+      .sentence {
+        font-size: 17px;
+      }
+
+      .clue-title {
+        font-size: 22px;
+      }
+
+      .key {
+        width: 34px;
+        height: 34px;
+      }
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <main class="app">
+
+    <!-- HEADER -->
+
+    <header>
+
+      <div class="badge">
+        Mystery Case #08
+      </div>
+
+      <h1>
+        The School Festival Mystery
+      </h1>
+
+      <p class="subtitle">
+        Find all six keys to solve the mystery.
+      </p>
+
+    </header>
+
+
+    <!-- PROGRESS -->
+
+    <section
+      class="progress-area"
+      id="progressArea"
+    >
+
+      <div class="progress-info">
+
+        <span id="caseNumber">
+          Case 1 of 6
+        </span>
+
+        <span id="scoreDisplay">
+          First tries: 0
+        </span>
+
+      </div>
+
+
+      <div class="progress-bar">
+
+        <div
+          class="progress-fill"
+          id="progressFill"
+        ></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- KEYS -->
+
+    <section
+      class="keys"
+      id="keys"
+    >
+
+      <div
+        class="key"
+        id="key0"
+      >
+        🔑
+      </div>
+
+      <div
+        class="key"
+        id="key1"
+      >
+        🔑
+      </div>
+
+      <div
+        class="key"
+        id="key2"
+      >
+        🔑
+      </div>
+
+      <div
+        class="key"
+        id="key3"
+      >
+        🔑
+      </div>
+
+      <div
+        class="key"
+        id="key4"
+      >
+        🔑
+      </div>
+
+      <div
+        class="key"
+        id="key5"
+      >
+        🔑
+      </div>
+
+    </section>
+
+
+    <!-- QUESTION -->
+
+    <section
+      class="question-card"
+      id="questionCard"
+    >
+
+      <div
+        class="case-label"
+        id="caseLabel"
+      >
+        Clue 01
+      </div>
+
+
+      <h2
+        class="clue-title"
+        id="clueTitle"
+      >
+        The Person in Charge
+      </h2>
+
+
+      <p
+        class="sentence"
+        id="sentence"
+      >
+        Mina is ______ the English booth.
+      </p>
+
+
+      <div
+        class="options"
+        id="options"
+      ></div>
+
+
+      <!-- FEEDBACK -->
+
+      <div
+        class="feedback"
+        id="feedback"
+      >
+
+        <div
+          class="feedback-title"
+          id="feedbackTitle"
+        ></div>
+
+        <div
+          class="feedback-text"
+          id="feedbackText"
+        ></div>
+
+      </div>
+
+
+      <!-- NEXT -->
+
+      <button
+        class="next-btn"
+        id="nextBtn"
+      >
+        Next Clue →
+      </button>
+
+
+      <!-- RETRY -->
+
+      <button
+        class="retry-btn"
+        id="retryBtn"
+      >
+        Try Again
+      </button>
+
+    </section>
+
+
+    <!-- FINAL SCREEN -->
+
+    <section
+      class="final-screen"
+      id="finalScreen"
+    >
+
+      <div class="final-icon">
+        🕵️‍♀️🔑
+      </div>
+
+
+      <h2>
+        Mystery Solved!
+      </h2>
+
+
+      <p>
+        You found all six keys!
+      </p>
+
+
+      <p>
+        The English booth is ready for the school festival.
+      </p>
+
+
+      <div
+        class="score"
+        id="finalScore"
+      >
+        First tries: 0 / 6
+      </div>
+
+
+      <div
+        class="result-message"
+        id="resultMessage"
+      ></div>
+
+
+      <button
+        class="restart-btn"
+        id="restartBtn"
+      >
+        Solve Again
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <script>
+
+    /*
+      ==========================================
+      MYSTERY QUESTIONS
+      ==========================================
+    */
+
+    const questions = [
+
+      {
+        title: "The Person in Charge",
+
+        sentence:
+          "Mina is ______ the English booth.",
+
+        options: [
+          "take part in",
+          "in charge of",
+          "cut down on",
+          "figure out"
+        ],
+
+        answer:
+          "in charge of",
+
+        korean:
+          "담당하다 / 책임지다",
+
+        hint:
+          "Think about the person who is responsible for the booth."
+      },
+
+
+      {
+        title: "Join the Game",
+
+        sentence:
+          "Mina asked everyone to ______ the short quiz game.",
+
+        options: [
+          "take part in",
+          "work on",
+          "make a difference",
+          "in charge of"
+        ],
+
+        answer:
+          "take part in",
+
+        korean:
+          "참여하다",
+
+        hint:
+          "Mina wants everyone to join the game."
+      },
+
+
+      {
+        title: "Find the Answer",
+
+        sentence:
+          "The team couldn't ______ how to make the game interesting.",
+
+        options: [
+          "cut down on",
+          "work on",
+          "figure out",
+          "take part in"
+        ],
+
+        answer:
+          "figure out",
+
+        korean:
+          "알아내다 / 이해하다",
+
+        hint:
+          "They need to find the answer to the problem."
+      },
+
+
+      {
+        title: "Create the Mystery Game",
+
+        sentence:
+          "The team decided to ______ a mystery theme.",
+
+        options: [
+          "make a difference",
+          "work on",
+          "in charge of",
+          "cut down on"
+        ],
+
+        answer:
+          "work on",
+
+        korean:
+          "작업하다 / ~을 개선하다",
+
+        hint:
+          "They are creating and improving the mystery game."
+      },
+
+
+      {
+        title: "Shorter Instructions",
+
+        sentence:
+          "They decided to ______ long instructions.",
+
+        options: [
+          "take part in",
+          "figure out",
+          "make a difference",
+          "cut down on"
+        ],
+
+        answer:
+          "cut down on",
+
+        korean:
+          "~을 줄이다",
+
+        hint:
+          "They want to use fewer long instructions."
+      },
+
+
+      {
+        title: "A Positive Change",
+
+        sentence:
+          "They hope these changes will ______ for the students.",
+
+        options: [
+          "make a difference",
+          "work on",
+          "take part in",
+          "in charge of"
+        ],
+
+        answer:
+          "make a difference",
+
+        korean:
+          "변화를 만들다 / 도움이 되다",
+
+        hint:
+          "They hope the changes will have a positive effect."
+      }
+
+    ];
+
+
+    /*
+      ==========================================
+      GAME VARIABLES
+      ==========================================
+    */
+
+    let currentQuestion = 0;
+
+    // Number of questions answered correctly
+    // on the FIRST attempt
+    let firstTryScore = 0;
+
+    // Whether the current question has
+    // already been answered correctly
+    let questionSolved = false;
+
+    // Whether the current question has
+    // already had a wrong attempt
+    let hadWrongAttempt = false;
+
+
+    /*
+      ==========================================
+      DOM ELEMENTS
+      ==========================================
+    */
+
+    const caseNumber =
+      document.getElementById("caseNumber");
+
+    const scoreDisplay =
+      document.getElementById("scoreDisplay");
+
+    const progressFill =
+      document.getElementById("progressFill");
+
+    const caseLabel =
+      document.getElementById("caseLabel");
+
+    const clueTitle =
+      document.getElementById("clueTitle");
+
+    const sentence =
+      document.getElementById("sentence");
+
+    const options =
+      document.getElementById("options");
+
+    const feedback =
+      document.getElementById("feedback");
+
+    const feedbackTitle =
+      document.getElementById("feedbackTitle");
+
+    const feedbackText =
+      document.getElementById("feedbackText");
+
+    const nextBtn =
+      document.getElementById("nextBtn");
+
+    const retryBtn =
+      document.getElementById("retryBtn");
+
+    const questionCard =
+      document.getElementById("questionCard");
+
+    const finalScreen =
+      document.getElementById("finalScreen");
+
+    const finalScore =
+      document.getElementById("finalScore");
+
+    const resultMessage =
+      document.getElementById("resultMessage");
+
+    const restartBtn =
+      document.getElementById("restartBtn");
+
+
+    /*
+      ==========================================
+      LOAD QUESTION
+      ==========================================
+    */
+
+    function loadQuestion() {
+
+      const q =
+        questions[currentQuestion];
+
+
+      // Reset question state
+
+      questionSolved = false;
+      hadWrongAttempt = false;
+
+
+      // Update header
+
+      caseNumber.textContent =
+        `Case ${currentQuestion + 1} of ${questions.length}`;
+
+
+      scoreDisplay.textContent =
+        `First tries: ${firstTryScore}`;
+
+
+      caseLabel.textContent =
+        `Clue ${String(currentQuestion + 1).padStart(2, "0")}`;
+
+
+      clueTitle.textContent =
+        q.title;
+
+
+      /*
+        Put a question mark into
+        the blank.
+      */
+
+      sentence.innerHTML =
+        q.sentence.replace(
+          "______",
+          '<span class="blank">?</span>'
+        );
+
+
+      /*
+        Clear previous options
+      */
+
+      options.innerHTML = "";
+
+
+      /*
+        Clear feedback
+      */
+
+      feedback.className =
+        "feedback";
+
+      feedbackTitle.textContent =
+        "";
+
+      feedbackText.innerHTML =
+        "";
+
+
+      /*
+        Hide buttons
+      */
+
+      nextBtn.classList.remove("show");
+
+      retryBtn.classList.remove("show");
+
+
+      /*
+        Progress represents
+        solved cases.
+      */
+
+      const progress =
+        (currentQuestion / questions.length) * 100;
+
+      progressFill.style.width =
+        `${progress}%`;
+
+
+      /*
+        Create answer buttons
+      */
+
+      q.options.forEach((optionText) => {
+
+        const button =
+          document.createElement("button");
+
+        button.className =
+          "option";
+
+        button.textContent =
+          optionText;
+
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            checkAnswer(
+              optionText,
+              button
+            );
+
+          }
+        );
+
+
+        options.appendChild(button);
+
+      });
+
+    }
+
+
+    /*
+      ==========================================
+      CHECK ANSWER
+      ==========================================
+    */
+
+    function checkAnswer(
+      selected,
+      selectedButton
+    ) {
+
+      /*
+        If this question has already
+        been solved, do nothing.
+      */
+
+      if (questionSolved) {
+        return;
+      }
+
+
+      const q =
+        questions[currentQuestion];
+
+
+      /*
+        ======================================
+        CORRECT ANSWER
+        ======================================
+      */
+
+      if (selected === q.answer) {
+
+        questionSolved = true;
+
+
+        /*
+          Add the key.
+
+          IMPORTANT:
+          The key is only added here,
+          never after a wrong answer.
+        */
+
+        document
+          .getElementById(
+            `key${currentQuestion}`
+          )
+          .classList.add("found");
+
+
+        /*
+          First-try score
+        */
+
+        if (!hadWrongAttempt) {
+
+          firstTryScore++;
+
+        }
+
+
+        /*
+          Mark correct answer
+        */
+
+        selectedButton.classList.add(
+          "correct"
+        );
+
+
+        /*
+          Disable all options
+        */
+
+        document
+          .querySelectorAll(".option")
+          .forEach((button) => {
+
+            button.disabled = true;
+
+          });
+
+
+        /*
+          Correct feedback
+        */
+
+        feedback.className =
+          "feedback show correct-feedback";
+
+
+        feedbackTitle.textContent =
+          "🔑 Key Found! Correct!";
+
+
+        feedbackText.innerHTML =
+          `<strong>${q.answer}</strong> = ${q.korean}`;
+
+
+        /*
+          Update score
+        */
+
+        scoreDisplay.textContent =
+          `First tries: ${firstTryScore}`;
+
+
+        /*
+          Update progress.
+
+          A case only counts as complete
+          after the correct answer.
+        */
+
+        const progress =
+          ((currentQuestion + 1) /
+            questions.length) * 100;
+
+        progressFill.style.width =
+          `${progress}%`;
+
+
+        /*
+          Show next button
+
+          On the final question,
+          the button becomes "Solve Mystery".
+        */
+
+        if (
+          currentQuestion ===
+          questions.length - 1
+        ) {
+
+          nextBtn.textContent =
+            "Solve Mystery 🔐";
+
+        } else {
+
+          nextBtn.textContent =
+            "Next Clue →";
+
+        }
+
+
+        nextBtn.classList.add("show");
+
+        retryBtn.classList.remove("show");
+
+      }
+
+
+      /*
+        ======================================
+        WRONG ANSWER
+        ======================================
+      */
+
+      else {
+
+        /*
+          Remember that the student
+          needed a second attempt.
+        */
+
+        hadWrongAttempt = true;
+
+
+        /*
+          Mark selected answer as wrong
+        */
+
+        selectedButton.classList.add(
+          "wrong"
+        );
+
+
+        /*
+          Do NOT disable all answers.
+
+          The student must keep trying
+          until the correct answer is found.
+        */
+
+        selectedButton.disabled = true;
+
+
+        /*
+          Show Korean meaning as a hint.
+        */
+
+        feedback.className =
+          "feedback show wrong-feedback";
+
+
+        feedbackTitle.textContent =
+          "❌ Not quite! Try again.";
+
+
+        feedbackText.innerHTML =
+          `
+            <span class="korean-hint">
+              💡 뜻: ${q.korean}
+            </span>
+            ${q.hint}
+          `;
+
+
+        /*
+          Show retry button.
+        */
+
+        retryBtn.classList.add("show");
+
+        nextBtn.classList.remove("show");
+
+      }
+
+    }
+
+
+    /*
+      ==========================================
+      TRY AGAIN
+      ==========================================
+    */
+
+    retryBtn.addEventListener(
+      "click",
+      () => {
+
+        retryBtn.classList.remove("show");
+
+        feedback.className =
+          "feedback";
+
+        feedbackTitle.textContent =
+          "";
+
+        feedbackText.innerHTML =
+          "";
+
+      }
+    );
+
+
+    /*
+      ==========================================
+      NEXT QUESTION
+      ==========================================
+    */
+
+    nextBtn.addEventListener(
+      "click",
+      () => {
+
+        /*
+          This button can only appear
+          after a correct answer.
+        */
+
+        if (!questionSolved) {
+          return;
+        }
+
+
+        currentQuestion++;
+
+
+        /*
+          All six questions solved.
+        */
+
+        if (
+          currentQuestion >=
+          questions.length
+        ) {
+
+          showFinal();
+
+        }
+
+        else {
+
+          loadQuestion();
+
+        }
+
+      }
+    );
+
+
+    /*
+      ==========================================
+      FINAL SCREEN
+      ==========================================
+    */
+
+    function showFinal() {
+
+      /*
+        Hide game
+      */
+
+      questionCard.style.display =
+        "none";
+
+      document
+        .getElementById("progressArea")
+        .style.display = "none";
+
+      document
+        .getElementById("keys")
+        .style.display = "flex";
+
+
+      /*
+        Make absolutely sure all six keys
+        are displayed as found.
+      */
+
+      document
+        .querySelectorAll(".key")
+        .forEach((key) => {
+
+          key.classList.add("found");
+
+        });
+
+
+      /*
+        Show final screen
+      */
+
+      finalScreen.classList.add("show");
+
+
+      /*
+        Show score
+      */
+
+      finalScore.textContent =
+        `First tries: ${firstTryScore} / ${questions.length}`;
+
+
+      /*
+        Personalized result message
+      */
+
+      if (firstTryScore === 6) {
+
+        resultMessage.textContent =
+          "Perfect! You solved every clue on your first try. Excellent detective work!";
+
+      }
+
+      else if (firstTryScore >= 4) {
+
+        resultMessage.textContent =
+          "Great job! You solved the mystery and found all six keys.";
+
+      }
+
+      else {
+
+        resultMessage.textContent =
+          "You solved the mystery! Remember the six expressions you discovered.";
+
+      }
+
+    }
+
+
+    /*
+      ==========================================
+      RESTART
+      ==========================================
+    */
+
+    restartBtn.addEventListener(
+      "click",
+      () => {
+
+        currentQuestion = 0;
+
+        firstTryScore = 0;
+
+        questionSolved = false;
+
+        hadWrongAttempt = false;
+
+
+        /*
+          Reset all keys
+        */
+
+        document
+          .querySelectorAll(".key")
+          .forEach((key) => {
+
+            key.classList.remove("found");
+
+          });
+
+
+        /*
+          Show game again
+        */
+
+        questionCard.style.display =
+          "block";
+
+        document
+          .getElementById("progressArea")
+          .style.display = "block";
+
+        document
+          .getElementById("keys")
+          .style.display = "flex";
+
+
+        finalScreen.classList.remove(
+          "show"
+        );
+
+
+        loadQuestion();
+
+      }
+    );
+
+
+    /*
+      ==========================================
+      START GAME
+      ==========================================
+    */
+
+    loadQuestion();
+
+  </script>
+
+</body>
+</html>
