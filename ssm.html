@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forest Study Adventure</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, "Noto Sans KR", sans-serif;
+        background: #eaf2e8;
+        color: #26382b;
+    }
+
+    .app {
+        max-width: 850px;
+        margin: 0 auto;
+        min-height: 100vh;
+        background: #fffefb;
+        box-shadow: 0 0 25px rgba(30, 70, 40, 0.12);
+    }
+
+    header {
+        background: linear-gradient(135deg, #355d3a, #547b50);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    header .emoji {
+        font-size: 46px;
+        margin-bottom: 8px;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 29px;
+    }
+
+    header p {
+        margin: 8px 0 0;
+        color: #e5f0e3;
+        font-size: 15px;
+    }
+
+    .progress-area {
+        padding: 17px 28px 12px;
+        background: #f4f7f1;
+        border-bottom: 1px solid #dce6d9;
+    }
+
+    .progress-top {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 9px;
+        color: #56665a;
+    }
+
+    .progress-bar {
+        height: 9px;
+        background: #dbe5d8;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #5c8057;
+        transition: width 0.3s ease;
+    }
+
+    .content {
+        padding: 30px;
+    }
+
+    .forest-card {
+        background: #f3f8f1;
+        border: 1px solid #d5e2d1;
+        border-radius: 17px;
+        padding: 27px;
+        text-align: center;
+    }
+
+    .forest-card .big-tree {
+        font-size: 60px;
+        margin-bottom: 8px;
+    }
+
+    .forest-card h2 {
+        margin: 0 0 12px;
+        font-size: 24px;
+        color: #355d3a;
+    }
+
+    .forest-card p {
+        line-height: 1.65;
+        color: #5c6c60;
+        margin: 7px 0;
+    }
+
+    .start-btn,
+    .next-btn,
+    .restart-btn {
+        border: none;
+        border-radius: 10px;
+        padding: 13px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        background: #3f6844;
+        color: white;
+        transition: 0.2s;
+    }
+
+    .start-btn {
+        margin-top: 14px;
+    }
+
+    .start-btn:hover,
+    .next-btn:hover,
+    .restart-btn:hover {
+        background: #315437;
+        transform: translateY(-1px);
+    }
+
+    .forest-path {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff8e6;
+        border: 1px solid #eadcb7;
+        padding: 13px 16px;
+        border-radius: 10px;
+        margin-bottom: 22px;
+        color: #6b5a31;
+        font-size: 14px;
+    }
+
+    .mission-label {
+        display: inline-block;
+        background: #4b704d;
+        color: white;
+        border-radius: 20px;
+        padding: 6px 13px;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 12px;
+    }
+
+    .question-card h2 {
+        font-size: 23px;
+        line-height: 1.45;
+        margin: 8px 0 20px;
+    }
+
+    .question-card .korean-hint {
+        color: #657468;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .choices {
+        display: grid;
+        gap: 11px;
+    }
+
+    .choice {
+        border: 2px solid #dce5dc;
+        background: white;
+        border-radius: 11px;
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.2s;
+        color: #2e3e31;
+    }
+
+    .choice:hover {
+        border-color: #789879;
+        background: #f6faf5;
+    }
+
+    .choice.correct {
+        border-color: #568060;
+        background: #edf7ee;
+    }
+
+    .choice.wrong {
+        border-color: #c96b6b;
+        background: #fff1f1;
+    }
+
+    .feedback {
+        margin-top: 18px;
+        border-radius: 11px;
+        padding: 15px 17px;
+        line-height: 1.55;
+        display: none;
+    }
+
+    .feedback.correct {
+        display: block;
+        background: #edf7ee;
+        border: 1px solid #b9d8bd;
+        color: #35633d;
+    }
+
+    .feedback.wrong {
+        display: block;
+        background: #fff3f3;
+        border: 1px solid #e7b9b9;
+        color: #7b4141;
+    }
+
+    .feedback strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .hint-box {
+        margin-top: 8px;
+        font-size: 14px;
+    }
+
+    .next-area {
+        text-align: right;
+        margin-top: 22px;
+    }
+
+    .next-btn {
+        display: none;
+    }
+
+    .final-card {
+        text-align: center;
+    }
+
+    .score-box {
+        background: #f3f8f1;
+        border: 1px solid #d5e2d1;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 22px;
+    }
+
+    .score-number {
+        font-size: 40px;
+        font-weight: bold;
+        color: #3f6844;
+        margin: 5px 0;
+    }
+
+    .forest-book {
+        border: 2px solid #789879;
+        border-radius: 16px;
+        padding: 28px;
+        background: #f8fbf6;
+    }
+
+    .forest-book .book-icon {
+        font-size: 48px;
+    }
+
+    .forest-book h2 {
+        color: #355d3a;
+        margin: 8px 0;
+    }
+
+    .final-message {
+        background: #edf7ee;
+        border: 1px solid #b9d8bd;
+        border-radius: 12px;
+        padding: 16px;
+        color: #35633d;
+        margin-top: 18px;
+        line-height: 1.6;
+    }
+
+    .expression-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+        text-align: left;
+    }
+
+    .expression-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 15px;
+        background: white;
+        border: 1px solid #dce5dc;
+        border-radius: 9px;
+    }
+
+    .expression-item .eng {
+        font-weight: bold;
+        color: #355d3a;
+    }
+
+    .expression-item .kor {
+        color: #69776c;
+        font-size: 14px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .mini-note {
+        font-size: 13px;
+        color: #788479;
+        margin-top: 14px;
+    }
+
+    @media (max-width: 600px) {
+
+        header h1 {
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .question-card h2 {
+            font-size: 20px;
+        }
+
+        .expression-item {
+            flex-direction: column;
+            gap: 4px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+        <div class="emoji">🌲</div>
+        <h1>Forest Study Adventure</h1>
+        <p>Learn the expressions. Find your way through the forest.</p>
+    </header>
+
+    <div class="progress-area">
+
+        <div class="progress-top">
+            <span id="progressText">Ready</span>
+            <span id="scoreText">Score: 0</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+    </div>
+
+    <main class="content">
+
+        <!-- INTRO -->
+
+        <section id="introScreen">
+
+            <div class="forest-path">
+                🌿 <strong>Forest Path:</strong>
+                6 study spots are waiting for you.
+            </div>
+
+            <div class="forest-card">
+
+                <div class="big-tree">🌲🌳🌲</div>
+
+                <h2>Ready for the Forest?</h2>
+
+                <p>
+                    Your English midterm is coming soon.
+                </p>
+
+                <p>
+                    Walk through the forest and complete
+                    6 short study missions.
+                </p>
+
+                <button class="start-btn" onclick="startGame()">
+                    Start Adventure
+                </button>
+
+                <div class="mini-note">
+                    6 missions · about 10 minutes
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUIZ -->
+
+        <section id="quizScreen" class="hidden">
+
+            <div class="forest-path">
+                🌿 <strong>Forest Path:</strong>
+                Complete the clue to move forward.
+            </div>
+
+            <div class="question-card">
+
+                <div class="mission-label" id="missionLabel">
+                    Study Spot 1
+                </div>
+
+                <h2 id="questionText"></h2>
+
+                <div class="korean-hint" id="questionHint"></div>
+
+                <div class="choices" id="choices"></div>
+
+                <div id="feedback" class="feedback"></div>
+
+                <div class="next-area">
+                    <button
+                        id="nextButton"
+                        class="next-btn"
+                        onclick="nextQuestion()">
+                        Next Spot →
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FINAL -->
+
+        <section id="finalScreen" class="hidden">
+
+            <div class="final-card">
+
+                <div class="score-box">
+
+                    <div>🌳 Forest Adventure Complete!</div>
+
+                    <div class="score-number" id="finalScore">
+                        0 / 6
+                    </div>
+
+                    <div id="finalComment"></div>
+
+                </div>
+
+
+                <div class="forest-book">
+
+                    <div class="book-icon">📖</div>
+
+                    <h2>Forest Study Book</h2>
+
+                    <p>
+                        You reached the end of the forest!
+                    </p>
+
+                    <div class="final-message">
+
+                        <strong>Great work!</strong><br>
+
+                        You studied all six target expressions.
+                        Review them before your English midterm.
+
+                    </div>
+
+
+                    <div class="expression-list">
+
+                        <div class="expression-item">
+                            <span class="eng">look after</span>
+                            <span class="kor">~을 돌보다</span>
+                        </div>
+
+                        <div class="expression-item">
+                            <span class="eng">take care of</span>
+                            <span class="kor">~을 돌보다 / 처리하다</span>
+                        </div>
+
+                        <div class="expression-item">
+                            <span class="eng">keep in mind</span>
+                            <span class="kor">명심하다</span>
+                        </div>
+
+                        <div class="expression-item">
+                            <span class="eng">figure out</span>
+                            <span class="kor">알아내다 / 이해하다</span>
+                        </div>
+
+                        <div class="expression-item">
+                            <span class="eng">work on</span>
+                            <span class="kor">작업하다 / 노력하다</span>
+                        </div>
+
+                        <div class="expression-item">
+                            <span class="eng">look forward to</span>
+                            <span class="kor">~을 기대하다</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div style="text-align:center; margin-top:25px;">
+
+                    <button
+                        class="restart-btn"
+                        onclick="restartGame()">
+                        Walk Again
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+    {
+        expression: "look after",
+
+        question:
+            "You are in the forest. A baby bird is alone. Can you ______ it?",
+
+        hint:
+            "힌트: 사람이나 동물을 '돌보다'",
+
+        choices: [
+            "look after",
+            "figure out",
+            "work on",
+            "look forward to"
+        ],
+
+        answer: 0,
+
+        explanation:
+            "look after = ~을 돌보다"
+    },
+
+
+    {
+        expression: "take care of",
+
+        question:
+            "There are many books on the table. Please ______ them.",
+
+        hint:
+            "힌트: 사람이나 일을 '돌보다 / 처리하다'",
+
+        choices: [
+            "keep in mind",
+            "take care of",
+            "look forward to",
+            "figure out"
+        ],
+
+        answer: 1,
+
+        explanation:
+            "take care of = ~을 돌보다 / 처리하다"
+    },
+
+
+    {
+        expression: "keep in mind",
+
+        question:
+            "______ that the English test is next Monday.",
+
+        hint:
+            "힌트: 중요한 것을 '명심하다'",
+
+        choices: [
+            "Work on",
+            "Look after",
+            "Keep in mind",
+            "Figure out"
+        ],
+
+        answer: 2,
+
+        explanation:
+            "keep in mind = ~을 명심하다"
+    },
+
+
+    {
+        expression: "figure out",
+
+        question:
+            "You see a difficult question in the forest study book. You try to ______ the answer.",
+
+        hint:
+            "힌트: 답이나 방법을 '알아내다'",
+
+        choices: [
+            "figure out",
+            "take care of",
+            "look after",
+            "look forward to"
+        ],
+
+        answer: 0,
+
+        explanation:
+            "figure out = ~을 알아내다 / 이해하다"
+    },
+
+
+    {
+        expression: "work on",
+
+        question:
+            "Sumin is studying for the midterm. She is ______ her English homework.",
+
+        hint:
+            "힌트: 어떤 일이나 과제에 '노력하다 / 작업하다'",
+
+        choices: [
+            "keeping in mind",
+            "looking after",
+            "working on",
+            "figuring out"
+        ],
+
+        answer: 2,
+
+        explanation:
+            "work on = ~을 작업하다 / ~에 노력하다"
+    },
+
+
+    {
+        expression: "look forward to",
+
+        question:
+            "The students ______ the school festival next week.",
+
+        hint:
+            "힌트: 미래의 일을 '기대하다'",
+
+        choices: [
+            "look after",
+            "look forward to",
+            "take care of",
+            "work on"
+        ],
+
+        answer: 1,
+
+        explanation:
+            "look forward to = ~을 기대하다"
+    }
+
+];
+
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+
+function startGame() {
+
+    currentQuestion = 0;
+    score = 0;
+    answered = false;
+
+    document
+        .getElementById("introScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("finalScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("quizScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("scoreText").textContent =
+        "Score: 0";
+
+    updateQuestion();
+}
+
+
+function updateQuestion() {
+
+    const q = questions[currentQuestion];
+
+    answered = false;
+
+    document.getElementById("missionLabel").textContent =
+        "Study Spot " + (currentQuestion + 1);
+
+    document.getElementById("questionText").textContent =
+        q.question;
+
+    document.getElementById("questionHint").textContent =
+        q.hint;
+
+    document.getElementById("feedback").className =
+        "feedback";
+
+    document.getElementById("feedback").innerHTML =
+        "";
+
+    document.getElementById("nextButton").style.display =
+        "none";
+
+    const choicesContainer =
+        document.getElementById("choices");
+
+    choicesContainer.innerHTML = "";
+
+
+    q.choices.forEach((choice, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "choice";
+
+        button.textContent = choice;
+
+        button.onclick = function() {
+
+            checkAnswer(index, button);
+
+        };
+
+        choicesContainer.appendChild(button);
+
+    });
+
+
+    updateProgress();
+}
+
+
+function checkAnswer(selected, selectedButton) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const q = questions[currentQuestion];
+
+    const allChoices =
+        document.querySelectorAll(".choice");
+
+
+    if (selected === q.answer) {
+
+        score++;
+
+        selectedButton.classList.add("correct");
+
+        const feedback =
+            document.getElementById("feedback");
+
+        feedback.className =
+            "feedback correct";
+
+        feedback.innerHTML =
+            "<strong>✓ Correct!</strong>" +
+            q.expression +
+            " = " +
+            getKoreanMeaning(q.expression);
+
+        document.getElementById("nextButton").style.display =
+            "inline-block";
+
+    } else {
+
+        selectedButton.classList.add("wrong");
+
+        allChoices[q.answer].classList.add("correct");
+
+        const feedback =
+            document.getElementById("feedback");
+
+        feedback.className =
+            "feedback wrong";
+
+        feedback.innerHTML =
+            "<strong>✗ Not quite.</strong>" +
+            "The answer is <b>" +
+            q.choices[q.answer] +
+            "</b>." +
+            "<div class='hint-box'>" +
+            q.explanation +
+            "</div>";
+
+        document.getElementById("nextButton").style.display =
+            "inline-block";
+    }
+
+
+    document.getElementById("scoreText").textContent =
+        "Score: " + score;
+}
+
+
+function getKoreanMeaning(expression) {
+
+    const meanings = {
+
+        "look after":
+            "돌보다",
+
+        "take care of":
+            "돌보다 / 처리하다",
+
+        "keep in mind":
+            "명심하다",
+
+        "figure out":
+            "알아내다 / 이해하다",
+
+        "work on":
+            "작업하다 / 노력하다",
+
+        "look forward to":
+            "기대하다"
+    };
+
+    return meanings[expression];
+}
+
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion >= questions.length) {
+
+        showFinal();
+
+    } else {
+
+        updateQuestion();
+
+    }
+}
+
+
+function updateProgress() {
+
+    const number =
+        currentQuestion + 1;
+
+    const percent =
+        (currentQuestion / questions.length) * 100;
+
+    document.getElementById("progressText").textContent =
+        "Study Spot " +
+        number +
+        " of " +
+        questions.length;
+
+    document.getElementById("progressFill").style.width =
+        percent + "%";
+}
+
+
+function showFinal() {
+
+    document
+        .getElementById("quizScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("finalScreen")
+        .classList.remove("hidden");
+
+
+    document.getElementById("progressText").textContent =
+        "Forest Complete";
+
+    document.getElementById("progressFill").style.width =
+        "100%";
+
+
+    document.getElementById("finalScore").textContent =
+        score + " / " + questions.length;
+
+
+    let comment = "";
+
+
+    if (score === 6) {
+
+        comment =
+            "Perfect! You mastered all six expressions! 🌟";
+
+    } else if (score >= 4) {
+
+        comment =
+            "Great job! Review the expressions once more. 🌿";
+
+    } else {
+
+        comment =
+            "Good try! Review the study book and try again. 📚";
+    }
+
+
+    document.getElementById("finalComment").textContent =
+        comment;
+}
+
+
+function restartGame() {
+
+    document
+        .getElementById("finalScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("introScreen")
+        .classList.remove("hidden");
+
+
+    document.getElementById("progressText").textContent =
+        "Ready";
+
+    document.getElementById("scoreText").textContent =
+        "Score: 0";
+
+    document.getElementById("progressFill").style.width =
+        "0%";
+}
+
+</script>
+
+</body>
+</html>
